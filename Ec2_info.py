@@ -19,8 +19,6 @@ def get_ec2_instance_info():
         response = ec2.describe_instances(Filters=[
             {'Name': 'instance-state-name', 'Values': ['running']}
         ])
-
-        print(response)
        
         for reservation in response['Reservations']:
             for instance in reservation['Instances']:
