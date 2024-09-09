@@ -18,7 +18,7 @@ def get_costs_by_management_account(start_date, end_date, management_account_id,
             'End': end_date
         },
         Granularity='MONTHLY',
-        Metrics=['UnblendedCost'],
+        Metrics=['AmortizedCost'],
         Filter={
             'Dimensions': {
                 'Key': 'LINKED_ACCOUNT',
@@ -30,7 +30,7 @@ def get_costs_by_management_account(start_date, end_date, management_account_id,
             {'Type': 'DIMENSION', 'Key': 'REGION'}
         ]
     )
-    
+    total_amount = 0
     # Extracting and printing the cost data
     results = response.get('ResultsByTime', [])
     for result in results:
@@ -38,8 +38,12 @@ def get_costs_by_management_account(start_date, end_date, management_account_id,
         for group in result.get('Groups', []):
             service = group['Keys'][0]
             region = group['Keys'][1]
-            amount = group['Metrics']['UnblendedCost']['Amount']
-            print(f"Service: {service}, Region: {region}, Cost: ${amount}")
+            amount = float(group['Metrics']['AmortizedCost']['Amount'])
+            print(f"{service}-----> Region: {region}-----> Cost: ${amount:.2f}")
+            print("-" * 60)
+            total_amount+=amount
+            
+    print(f"\nTotal Cost for the specified period: ${total_amount:.2f}")
 
 if __name__ == "__main__":
     # Define your AWS access keys
@@ -48,7 +52,7 @@ if __name__ == "__main__":
     SESSION_TOKEN = None  # If using temporary credentials, provide the session token
     
     # Define the management account ID
-    MANAGEMENT_ACCOUNT_ID = input("Enter Account ID:")
+    MANAGEMENT_ACCOUNT_ID = 'account-id'
     
     start_date = input("Enter the start date (YYYY-MM-DD): ")
     end_date = input("Enter the end date (YYYY-MM-DD): ")
